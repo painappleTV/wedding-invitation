@@ -2,12 +2,20 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+const docClient = DynamoDBDocumentClient.from(client, {
+  marshallOptions: { removeUndefinedValues: true },
+});
 const TABLE_NAME = process.env.TABLE_NAME || 'wedding-guests';
 
+interface RSVPMember {
+  name: string;
+  attending: boolean;
+  allergy?: string;
+  note?: string;
+}
+
 interface RSVPBody {
-  rsvpStatus: 'attending' | 'declined';
-  plusOneCount?: number;
+  members: RSVPMember[];
   rsvpMessage?: string;
 }
 
@@ -51,13 +59,22 @@ export async function handler(
     };
   }
 
-  const { rsvpStatus, plusOneCount = 0, rsvpMessage } = body;
-  if (!rsvpStatus || !['attending', 'declined'].includes(rsvpStatus)) {
+  const { members, rsvpMessage } = body;
+  if (!members || !Array.isArray(members) || members.length === 0) {
     return {
       statusCode: 400,
       headers: corsHeaders,
-      body: JSON.stringify({ error: 'rsvpStatus must be attending or declined' }),
+      body: JSON.stringify({ error: 'members array is required' }),
     };
+  }
+  for (const m of members) {
+    if (typeof m.name !== 'string' || typeof m.attending !== 'boolean') {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'each member must have name and attending' }),
+      };
+    }
   }
 
   try {
@@ -77,17 +94,28 @@ export async function handler(
     }
 
     const now = new Date().toISOString();
-    const count = rsvpStatus === 'attending' ? (plusOneCount ?? 0) : 0;
+    const membersToSave = members.map((m) => {
+      const item: { name: string; attending: boolean; allergy?: string; note?: string } = {
+        name: m.name,
+        attending: m.attending,
+      };
+      if (m.allergy?.trim()) item.allergy = m.allergy.trim();
+      if (m.note?.trim()) item.note = m.note.trim();
+      return item;
+    });
+    const anyAttending = membersToSave.some((m) => m.attending);
+    const allDeclined = membersToSave.every((m) => !m.attending);
+    const rsvpStatus = allDeclined ? 'declined' : anyAttending ? 'attending' : 'pending';
 
     const updateResult = await docClient.send(
       new UpdateCommand({
         TableName: TABLE_NAME,
         Key: { inviteCode },
         UpdateExpression:
-          'SET rsvpStatus = :status, plusOneCount = :count, rsvpMessage = :msg, updatedAt = :now',
+          'SET members = :members, rsvpStatus = :status, rsvpMessage = :msg, updatedAt = :now',
         ExpressionAttributeValues: {
+          ':members': membersToSave,
           ':status': rsvpStatus,
-          ':count': count,
           ':msg': rsvpMessage || null,
           ':now': now,
         },
@@ -101,7 +129,7 @@ export async function handler(
       name: item?.name || getResult.Item!.name,
       message: item?.message || getResult.Item!.message || '',
       rsvpStatus,
-      plusOneCount: count,
+      members: membersToSave,
       rsvpMessage: rsvpMessage || null,
       updatedAt: now,
     };

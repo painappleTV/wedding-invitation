@@ -50,15 +50,24 @@ export async function handler(
       };
     }
 
+    let rsvpStatus = item.rsvpStatus || 'pending';
+    if (item.members && Array.isArray(item.members)) {
+      const anyAttending = item.members.some((m: { attending?: boolean }) => m.attending);
+      const allDeclined = item.members.every((m: { attending?: boolean }) => m.attending === false);
+      rsvpStatus = allDeclined ? 'declined' : anyAttending ? 'attending' : 'pending';
+    }
     const guest: Record<string, unknown> = {
       inviteCode: item.inviteCode,
       name: item.name,
       message: item.message || '',
-      rsvpStatus: item.rsvpStatus || 'pending',
+      rsvpStatus,
       plusOneCount: item.plusOneCount ?? 0,
       rsvpMessage: item.rsvpMessage ?? null,
       updatedAt: item.updatedAt,
     };
+    if (item.members && Array.isArray(item.members)) {
+      guest.members = item.members;
+    }
     if (item.customText && typeof item.customText === 'object') {
       guest.customText = item.customText;
     }

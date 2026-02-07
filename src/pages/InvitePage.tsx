@@ -51,10 +51,13 @@ export function InvitePage() {
     if (!guest) return;
     const useMock = !import.meta.env.VITE_API_URL;
     if (useMock) {
+      const anyAttending = data.members.some((m) => m.attending);
+      const allDeclined = data.members.every((m) => !m.attending);
+      const rsvpStatus = allDeclined ? 'declined' : anyAttending ? 'attending' : 'pending';
       setGuest({
         ...guest,
-        rsvpStatus: data.rsvpStatus,
-        plusOneCount: data.plusOneCount ?? 0,
+        members: data.members.map((m) => ({ ...m, allergy: m.allergy, note: m.note })),
+        rsvpStatus,
         rsvpMessage: data.rsvpMessage ?? null,
         updatedAt: new Date().toISOString(),
       });
@@ -91,7 +94,7 @@ export function InvitePage() {
   const footerText = ct?.footerText ?? weddingConfig.coupleNames;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+    <div className="min-h-screen relative">
       <header className="py-10 sm:py-16 px-4 text-center">
         <h1 className="text-3xl md:text-4xl font-serif text-amber-900 tracking-widest">
           {headerTitle}
@@ -116,8 +119,9 @@ export function InvitePage() {
       <PhotoGallery />
       <RSVPForm guest={guest} onSubmit={handleRSVPSubmit} />
 
-      <footer className="py-8 text-center text-amber-700 text-sm">
+      <footer className="py-8 text-center text-amber-700 text-sm space-y-2">
         <p>{footerText}</p>
+        <p className="text-amber-600 text-xs">IT企業勤めらしく、ページは2人で自作しました</p>
       </footer>
     </div>
   );

@@ -9,19 +9,26 @@ import { createServer } from 'http';
 const MOCK_GUESTS = {
   abc123: {
     inviteCode: 'abc123',
-    name: '山田太郎',
+    name: '山田家',
     message: 'いつもお世話になっております。ぜひお越しください。',
     rsvpStatus: 'pending',
-    plusOneCount: 0,
     rsvpMessage: null,
+    members: [
+      { name: '山田太郎', attending: undefined },
+      { name: '山田花子', attending: undefined },
+      { name: '山田一郎', attending: undefined },
+    ],
   },
   xyz789: {
     inviteCode: 'xyz789',
-    name: '佐藤花子',
+    name: '佐藤家',
     message: 'お二人の門出を心よりお祝い申し上げます。',
     rsvpStatus: 'pending',
-    plusOneCount: 0,
     rsvpMessage: null,
+    members: [
+      { name: '佐藤花子', attending: undefined },
+      { name: '佐藤健一', attending: undefined },
+    ],
   },
 };
 
@@ -68,10 +75,20 @@ const server = createServer((req, res) => {
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
+        const members = Array.isArray(data.members) ? data.members : [];
+        const anyAttending = members.some((m) => m.attending);
+        const allDeclined = members.length > 0 && members.every((m) => !m.attending);
+        const rsvpStatus = allDeclined ? 'declined' : anyAttending ? 'attending' : 'pending';
+        const membersToSave = members.map((m) => ({
+          name: m.name,
+          attending: !!m.attending,
+          allergy: m.allergy || undefined,
+          note: m.note || undefined,
+        }));
         const updated = {
           ...guest,
-          rsvpStatus: data.rsvpStatus || 'attending',
-          plusOneCount: data.plusOneCount ?? 0,
+          members: membersToSave.length > 0 ? membersToSave : guest.members,
+          rsvpStatus,
           rsvpMessage: data.rsvpMessage || null,
           updatedAt: new Date().toISOString(),
         };

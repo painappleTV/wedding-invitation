@@ -1,20 +1,43 @@
 import { useState } from 'react';
-import type { Guest, RSVPRequest } from '../api/client';
+import type { Guest, GuestMember, RSVPRequest } from '../api/client';
 
 interface RSVPFormProps {
   guest: Guest;
   onSubmit: (data: RSVPRequest) => Promise<void>;
 }
 
+/** 従来形式のゲストを members 形式に変換 */
+function getMembers(guest: Guest): GuestMember[] {
+  if (guest.members && guest.members.length > 0) {
+    return guest.members.map((m) => ({
+      name: m.name,
+      attending: m.attending ?? (guest.rsvpStatus !== 'declined'),
+      allergy: m.allergy ?? '',
+      note: m.note ?? '',
+    }));
+  }
+  return [
+    {
+      name: guest.name,
+      attending: guest.rsvpStatus !== 'declined',
+      allergy: '',
+      note: '',
+    },
+  ];
+}
+
 export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
-  const [status, setStatus] = useState<'attending' | 'declined'>(
-    guest.rsvpStatus === 'declined' ? 'declined' : 'attending'
-  );
-  const [plusOneCount, setPlusOneCount] = useState(guest.plusOneCount ?? 0);
+  const [members, setMembers] = useState<GuestMember[]>(() => getMembers(guest));
   const [message, setMessage] = useState(guest.rsvpMessage ?? '');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const setMember = (index: number, update: Partial<GuestMember>) => {
+    setMembers((prev) =>
+      prev.map((m, i) => (i === index ? { ...m, ...update } : m))
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +45,13 @@ export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
     setError(null);
     try {
       await onSubmit({
-        rsvpStatus: status,
-        plusOneCount: status === 'attending' ? plusOneCount : 0,
-        rsvpMessage: message || undefined,
+        members: members.map((m) => ({
+          name: m.name,
+          attending: m.attending ?? false,
+          allergy: m.allergy?.trim() || undefined,
+          note: m.note?.trim() || undefined,
+        })),
+        rsvpMessage: message.trim() || undefined,
       });
       setSubmitted(true);
     } catch (err) {
@@ -53,6 +80,9 @@ export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
         <h2 className="text-2xl font-serif text-amber-900 mb-6 text-center tracking-wider">
           出欠のご返答
         </h2>
+        <p className="text-amber-800 text-sm mb-4 text-center">
+          ご招待の皆様それぞれに出欠をご選択ください
+        </p>
         <form
           onSubmit={handleSubmit}
           className="bg-white rounded-lg shadow-md p-4 sm:p-6 space-y-6"
@@ -63,54 +93,75 @@ export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
             </div>
           )}
 
-          <div>
-            <label className="block text-amber-900 font-medium mb-2">
-              ご出欠
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] py-2 -my-2">
-                <input
-                  type="radio"
-                  name="status"
-                  value="attending"
-                  checked={status === 'attending'}
-                  onChange={() => setStatus('attending')}
-                  className="text-amber-600 w-5 h-5"
-                />
-                <span>出席</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] py-2 -my-2">
-                <input
-                  type="radio"
-                  name="status"
-                  value="declined"
-                  checked={status === 'declined'}
-                  onChange={() => setStatus('declined')}
-                  className="text-amber-600 w-5 h-5"
-                />
-                <span>欠席</span>
-              </label>
-            </div>
-          </div>
-
-          {status === 'attending' && (
-            <div>
-              <label className="block text-amber-900 font-medium mb-2">
-                同伴者人数
-              </label>
-              <select
-                value={plusOneCount}
-                onChange={(e) => setPlusOneCount(Number(e.target.value))}
-                className="w-full border border-amber-200 rounded px-3 py-2 focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+          <div className="space-y-5">
+            {members.map((member, index) => (
+              <div
+                key={member.name}
+                className="border border-amber-100 rounded-lg p-4 space-y-3"
               >
-                {[0, 1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={n}>
-                    {n}名
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                <p className="font-medium text-amber-900">{member.name} 様</p>
+                <div>
+                  <span className="block text-sm text-amber-800 mb-2">
+                    ご出欠
+                  </span>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] py-2 -my-2">
+                      <input
+                        type="radio"
+                        name={`status-${index}`}
+                        checked={member.attending !== false}
+                        onChange={() =>
+                          setMember(index, { attending: true })
+                        }
+                        className="text-amber-600 w-5 h-5"
+                      />
+                      <span>出席</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer min-h-[44px] min-w-[44px] py-2 -my-2">
+                      <input
+                        type="radio"
+                        name={`status-${index}`}
+                        checked={member.attending === false}
+                        onChange={() =>
+                          setMember(index, { attending: false })
+                        }
+                        className="text-amber-600 w-5 h-5"
+                      />
+                      <span>欠席</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-amber-800 mb-1">
+                    アレルギー・食物制限（任意）
+                  </label>
+                  <input
+                    type="text"
+                    value={member.allergy ?? ''}
+                    onChange={(e) =>
+                      setMember(index, { allergy: e.target.value })
+                    }
+                    placeholder="例：エビ、卵"
+                    className="w-full border border-amber-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-amber-800 mb-1">
+                    備考（任意）
+                  </label>
+                  <input
+                    type="text"
+                    value={member.note ?? ''}
+                    onChange={(e) =>
+                      setMember(index, { note: e.target.value })
+                    }
+                    placeholder="ご要望など"
+                    className="w-full border border-amber-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-amber-300 focus:border-amber-400"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
 
           <div>
             <label className="block text-amber-900 font-medium mb-2">
@@ -119,7 +170,7 @@ export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              rows={4}
+              rows={3}
               className="w-full border border-amber-200 rounded px-3 py-2 focus:ring-2 focus:ring-amber-300 focus:border-amber-400 resize-none"
               placeholder="お祝いのメッセージやご連絡事項をご記入ください"
             />

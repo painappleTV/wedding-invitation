@@ -15,6 +15,9 @@ dist-ssr
 .env.production
 .aws-sam
 
+# 重複/不要フォルダ
+wedding-invitation/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

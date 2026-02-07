@@ -35,6 +35,15 @@ Resources:
     Properties:
       Handler: src/getGuest.handler
       CodeUri: backend/
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: !GetAtt GuestsTable.Arn
       Events:
         GetGuest:
           Type: Api
@@ -57,6 +66,17 @@ Resources:
     Properties:
       Handler: src/submitRSVP.handler
       CodeUri: backend/
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: !GetAtt GuestsTable.Arn
       Events:
         SubmitRSVP:
           Type: Api

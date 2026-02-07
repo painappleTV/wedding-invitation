@@ -4,7 +4,7 @@ import { weddingConfig } from '../config';
 
 export function TopPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+    <div className="min-h-screen relative">
       <header className="py-10 sm:py-16 px-4 text-center">
         <h1 className="text-3xl md:text-4xl font-serif text-amber-900 tracking-widest">
           結婚式のご案内
@@ -15,8 +15,9 @@ export function TopPage() {
       </header>
       <WeddingInfo />
       <PhotoGallery />
-      <footer className="py-8 text-center text-amber-700 text-sm">
+      <footer className="py-8 text-center text-amber-700 text-sm space-y-2">
         <p>{weddingConfig.coupleNames}</p>
+        <p className="text-amber-600 text-xs">IT企業勤めらしく、ページは自作しました</p>
       </footer>
     </div>
   );

@@ -4,6 +4,8 @@ interface WeddingInfoProps {
   sectionTitle?: string;
   venueName?: string;
   venueAddress?: string;
+  /** 地図リンクURL（空なら venueAddress から検索URLを生成） */
+  venueMapUrl?: string;
   date?: string;
   time?: string;
 }
@@ -12,6 +14,7 @@ export function WeddingInfo({
   sectionTitle = '挙式・披露宴のご案内',
   venueName = weddingConfig.venueName,
   venueAddress = weddingConfig.venueAddress,
+  venueMapUrl = weddingConfig.venueMapUrl,
   date = weddingConfig.date,
   time = weddingConfig.time,
 }: WeddingInfoProps) {
@@ -28,7 +31,7 @@ export function WeddingInfo({
             <p className="font-medium">{venueName}</p>
             <p className="text-sm text-amber-800 mt-1">{venueAddress}</p>
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueAddress)}`}
+              href={venueMapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueAddress)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center min-h-[44px] mt-3 px-4 py-2 text-amber-700 underline hover:text-amber-900 hover:bg-amber-100 rounded transition-colors"
