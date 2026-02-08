@@ -109,7 +109,7 @@ export function InvitePage() {
           {guest.name} 様
         </p>
         {guest.message && (
-          <p className="mt-4 max-w-xl mx-auto text-amber-700 leading-relaxed">
+          <p className="mt-4 max-w-xl mx-auto text-amber-700 leading-relaxed whitespace-pre-line">
             {guest.message}
           </p>
         )}
