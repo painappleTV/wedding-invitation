@@ -136,6 +136,9 @@ export async function handler(
     if (item?.customText && typeof item.customText === 'object') {
       guest.customText = item.customText;
     }
+    if (item?.guestType && ['親族', '友人'].includes(item.guestType)) {
+      guest.guestType = item.guestType;
+    }
 
     return {
       statusCode: 200,

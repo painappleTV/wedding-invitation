@@ -5,6 +5,7 @@ export const MOCK_GUESTS: Record<string, Guest> = {
     inviteCode: 'abc123',
     name: '山田家',
     message: 'いつもお世話になっております。ぜひお越しください。',
+    guestType: '親族',
     rsvpStatus: 'pending',
     rsvpMessage: null,
     members: [
@@ -17,6 +18,7 @@ export const MOCK_GUESTS: Record<string, Guest> = {
     inviteCode: 'xyz789',
     name: '佐藤家',
     message: 'お二人の門出を心よりお祝い申し上げます。',
+    guestType: '友人',
     rsvpStatus: 'pending',
     rsvpMessage: null,
     members: [

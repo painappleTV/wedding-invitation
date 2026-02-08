@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { weddingConfig } from '../config';
 import type { Guest, GuestMember, RSVPRequest } from '../api/client';
 
 interface RSVPFormProps {
@@ -77,9 +78,12 @@ export function RSVPForm({ guest, onSubmit }: RSVPFormProps) {
   return (
     <section className="py-8 sm:py-12 px-4">
       <div className="max-w-xl mx-auto">
-        <h2 className="text-2xl font-serif text-amber-900 mb-6 text-center tracking-wider">
+        <h2 className="text-2xl font-serif text-amber-900 mb-2 text-center tracking-wider">
           出欠のご返答
         </h2>
+        <p className="text-amber-700 text-sm mb-4 text-center">
+          ご回答期限：{weddingConfig.rsvpDeadline}
+        </p>
         <p className="text-amber-800 text-sm mb-4 text-center">
           ご招待の皆様それぞれに出欠をご選択ください
         </p>

@@ -26,6 +26,8 @@ interface GuestInput {
   name: string;
   message: string;
   inviteCode?: string;
+  /** 親族 or 友人（集合時間の出し分け：親族=13:30、友人=14:15） */
+  guestType?: '親族' | '友人';
   /** 招待メンバー一覧（1世帯に複数人）。未指定時は name を1名として扱う */
   members?: GuestMemberInput[];
   customText?: {
@@ -43,6 +45,7 @@ const SAMPLE_GUESTS: GuestInput[] = [
   {
     name: '山田家',
     message: 'いつもお世話になっております。ぜひお越しください。',
+    guestType: '親族',
     members: [
       { name: '山田太郎' },
       { name: '山田花子' },
@@ -52,6 +55,7 @@ const SAMPLE_GUESTS: GuestInput[] = [
   {
     name: '佐藤家',
     message: 'お二人の門出を心よりお祝い申し上げます。',
+    guestType: '友人',
     members: [
       { name: '佐藤花子' },
       { name: '佐藤健一' },
@@ -64,6 +68,7 @@ const SAMPLE_GUESTS: GuestInput[] = [
   {
     name: '鈴木一郎',
     message: 'この度はお招きいただきありがとうございます。',
+    guestType: '友人',
   },
 ];
 
@@ -83,6 +88,9 @@ async function seed() {
       rsvpMessage: null,
       updatedAt: new Date().toISOString(),
     };
+    if (guest.guestType && ['親族', '友人'].includes(guest.guestType)) {
+      item.guestType = guest.guestType;
+    }
     if (members) {
       item.members = members;
     }

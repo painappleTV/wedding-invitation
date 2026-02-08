@@ -1,5 +1,10 @@
 import { weddingConfig } from '../config';
 
+interface ParkingInfo {
+  main: string;
+  restriction: string;
+}
+
 interface WeddingInfoProps {
   sectionTitle?: string;
   venueName?: string;
@@ -7,7 +12,12 @@ interface WeddingInfoProps {
   /** 地図リンクURL（空なら venueAddress から検索URLを生成） */
   venueMapUrl?: string;
   date?: string;
+  /** 1行目：集合時間 / 挙式時間 */
   time?: string;
+  /** 2行目：補足（※...） */
+  timeNote?: string;
+  /** 駐車場情報（未指定なら config を使用） */
+  parkingInfo?: ParkingInfo | null;
 }
 
 export function WeddingInfo({
@@ -17,6 +27,8 @@ export function WeddingInfo({
   venueMapUrl = weddingConfig.venueMapUrl,
   date = weddingConfig.date,
   time = weddingConfig.time,
+  timeNote,
+  parkingInfo = weddingConfig.parkingInfo,
 }: WeddingInfoProps) {
   return (
     <section className="py-8 sm:py-12 px-4 bg-amber-50/50">
@@ -26,7 +38,10 @@ export function WeddingInfo({
         </h2>
         <div className="space-y-4 text-amber-950">
           <p className="text-lg">{date}</p>
-          <p className="text-lg">{time}</p>
+          <div>
+            <p className="text-lg">{time}</p>
+            {timeNote && <p className="text-sm text-amber-700 mt-1">{timeNote}</p>}
+          </div>
           <div className="pt-6 border-t border-amber-200">
             <p className="font-medium">{venueName}</p>
             <p className="text-sm text-amber-800 mt-1">{venueAddress}</p>
@@ -38,6 +53,19 @@ export function WeddingInfo({
             >
               地図を開く
             </a>
+            {parkingInfo && (
+              <div className="mt-6 pt-6 border-t border-amber-200/70 text-left">
+                <p className="text-xs font-medium text-amber-700 tracking-wider mb-2">
+                  🅿 PARKING
+                </p>
+                <p className="text-sm text-amber-800 leading-relaxed">
+                  {parkingInfo.main}
+                </p>
+                <p className="text-xs text-amber-600 mt-2 opacity-90">
+                  ※{parkingInfo.restriction}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

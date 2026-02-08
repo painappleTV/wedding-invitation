@@ -93,6 +93,12 @@ export function InvitePage() {
   const headerTitle = ct?.headerTitle ?? '結婚式のご案内';
   const footerText = ct?.footerText ?? weddingConfig.coupleNames;
 
+  // customText.time があればそれを使用、なければ guestType に応じて集合時間を出し分け
+  const assembly =
+    guest.guestType && weddingConfig.assemblyTextByType[guest.guestType];
+  const time = ct?.time ?? (assembly ? assembly.main : weddingConfig.time);
+  const timeNote = assembly?.note;
+
   return (
     <div className="min-h-screen relative">
       <header className="py-10 sm:py-16 px-4 text-center">
@@ -114,7 +120,8 @@ export function InvitePage() {
         venueName={ct?.venueName}
         venueAddress={ct?.venueAddress}
         date={ct?.date}
-        time={ct?.time}
+        time={time}
+        timeNote={timeNote}
       />
       <PhotoGallery />
       <RSVPForm guest={guest} onSubmit={handleRSVPSubmit} />

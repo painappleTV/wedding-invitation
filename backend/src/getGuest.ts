@@ -65,6 +65,9 @@ export async function handler(
       rsvpMessage: item.rsvpMessage ?? null,
       updatedAt: item.updatedAt,
     };
+    if (item.guestType && ['親族', '友人'].includes(item.guestType)) {
+      guest.guestType = item.guestType;
+    }
     if (item.members && Array.isArray(item.members)) {
       guest.members = item.members;
     }

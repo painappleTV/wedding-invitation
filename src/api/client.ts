@@ -11,11 +11,16 @@ export interface GuestMember {
   note?: string;
 }
 
+/** 親族 or 友人（集合時間の出し分けに使用） */
+export type GuestType = '親族' | '友人';
+
 export interface Guest {
   inviteCode: string;
   /** 世帯名（表示用） */
   name: string;
   message: string;
+  /** 親族 or 友人（集合時間の出し分け） */
+  guestType?: GuestType;
   /** 世帯全体のステータス（members があれば members から算出） */
   rsvpStatus: 'pending' | 'attending' | 'declined';
   /** 招待メンバー一覧（1世帯に複数人）※未指定時は従来通り1名扱い */
