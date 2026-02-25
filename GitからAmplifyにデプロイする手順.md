@@ -204,6 +204,31 @@ git config --global user.email "あなたのGitHubのメールアドレス"
 - `git remote -v` でリモート URL を確認
 - URL が間違っている場合: `git remote set-url origin https://github.com/ユーザー名/リポジトリ名.git`
 
+### Push したのに Amplify が自動デプロイしない
+
+1. **GitHub に push が届いているか確認**
+   - https://github.com/painappleTV/wedding-invitation を開く
+   - `main` ブランチの「最新のコミット」が、今 push した直後の日時・メッセージになっているか確認
+   - 届いていなければ、手元で `git push origin main` を実行（認証が必要）
+
+2. **Amplify で監視ブランチが `main` か確認**
+   - AWS Amplify コンソール → 対象アプリ → 左メニュー「アプリの設定」→「一般」
+   - 「ブランチ」で `main` が接続されているか確認
+   - 左メニュー「分岐」で、`main` の「自動デプロイ」がオンか確認
+
+3. **GitHub の Webhook が有効か確認**
+   - GitHub リポジトリ → Settings → Webhooks
+   - Amplify 用の Webhook（`amplify` や `aws` を含む URL）が存在し、直近の「Recent Deliveries」で成功（緑の✓）になっているか確認
+   - 失敗している場合は「Redeliver」で再送、または Amplify 側で「再接続」を試す
+
+4. **Amplify で手動ビルドを試す**
+   - Amplify コンソール → 対象アプリ → 「main」ブランチを選択 → 「デプロイを実行」で手動トリガー
+   - これでビルドが始まれば、push 検知まわりの問題の可能性が高い
+
+5. **ビルドが「開始されていない」か「失敗」か確認**
+   - 左メニュー「ビルドの履歴」で、push 直後のビルドが「失敗」になっていないか確認
+   - 失敗している場合はビルドログを開き、エラー内容を確認
+
 ### Amplify のビルドが失敗する
 - ビルドログを確認し、エラー内容をチェック
 - `VITE_API_URL` が正しく設定されているか確認

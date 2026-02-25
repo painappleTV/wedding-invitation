@@ -58,7 +58,7 @@ export function WeddingInfo({
                 <p className="text-xs font-medium text-amber-700 tracking-wider mb-2">
                   🅿 PARKING
                 </p>
-                <p className="text-sm text-amber-800 leading-relaxed">
+                <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-line">
                   {parkingInfo.main}
                 </p>
                 <p className="text-xs text-amber-600 mt-2 opacity-90">
