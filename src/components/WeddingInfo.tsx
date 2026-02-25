@@ -40,7 +40,7 @@ export function WeddingInfo({
           <p className="text-lg">{date}</p>
           <div>
             <p className="text-lg">{time}</p>
-            {timeNote && <p className="text-sm text-amber-700 mt-1">{timeNote}</p>}
+            {timeNote && <p className="text-sm text-amber-700 mt-1 whitespace-pre-line">{timeNote}</p>}
           </div>
           <div className="pt-6 border-t border-amber-200">
             <p className="font-medium">{venueName}</p>

@@ -27,6 +27,18 @@ function useGalleryImages(): GalleryItem[] {
   }, []);
 }
 
+/** 見出しとギャラリーの間の常時表示コメント（吹き出し） */
+function GallerySpeechBubble() {
+  return (
+    <div className="flex justify-start mb-6 pl-2 sm:pl-4">
+      <div className="relative bg-white/95 text-amber-900 px-5 py-3 rounded-2xl shadow-md border border-amber-200/60 max-w-sm animate-bubble-hop">
+        <p className="text-center text-sm font-medium">当日お会いできるのを楽しみにしています！</p>
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/95 border-r border-b border-amber-200/60 rotate-45 rounded-sm" aria-hidden />
+      </div>
+    </div>
+  );
+}
+
 function SlideImage({
   src,
   alt,
@@ -111,6 +123,7 @@ export function PhotoGallery({
           <h2 className="text-2xl font-serif text-amber-900 mb-8 text-center tracking-wider">
             私たちの写真
           </h2>
+          <GallerySpeechBubble />
           <div className="aspect-video bg-amber-100 rounded-lg flex items-center justify-center text-amber-700">
             <p>写真を src/assets/images/ に 1_xxx.jpg, 2_xxx.png の形式で追加してください</p>
           </div>
@@ -125,6 +138,7 @@ export function PhotoGallery({
         <h2 className="text-2xl font-serif text-amber-900 mb-8 text-center tracking-wider">
           私たちの写真
         </h2>
+        <GallerySpeechBubble />
         <div className="relative aspect-[4/3] sm:aspect-video rounded-lg overflow-hidden shadow-md bg-amber-100">
           {photos.map((item, i) => (
             <SlideImage

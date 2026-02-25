@@ -27,13 +27,26 @@ sam deploy
 
 ## 2. ゲストデータの投入
 
+### 方法A: CSV で一括投入（推奨）
+
+1. [scripts/CSV_FORMAT.md](../scripts/CSV_FORMAT.md) を参照して CSV を用意する（サンプル: `scripts/guests-example.csv`）
+2. 以下で投入:
+
+```bash
+cd scripts
+npm install
+TABLE_NAME=wedding-guests npx tsx seed-from-csv.ts guests.csv
+```
+
+### 方法B: スクリプト内のサンプルデータで投入
+
 ```bash
 cd scripts
 npm install
 TABLE_NAME=wedding-guests npx tsx seed-guests.ts
 ```
 
-`guests.example.json` を編集してゲストを追加し、スクリプトを拡張することも可能です。
+`seed-guests.ts` の `SAMPLE_GUESTS` を編集してゲストを追加することも可能です。
 
 ## 3. フロントエンドのデプロイ
 

@@ -53,3 +53,13 @@ textarea,
 .animate-float-2 { animation: float-2 14s ease-in-out infinite; }
 .animate-float-3 { animation: float-3 11s ease-in-out infinite; }
 .animate-float-4 { animation: float-4 13s ease-in-out infinite; }
+
+/* 吹き出しの跳ねる演出（一定周期） */
+@keyframes bubble-hop {
+  0%, 82%, 100% { transform: translateY(0); }
+  86% { transform: translateY(-10px); }
+  88% { transform: translateY(-3px); }
+  90% { transform: translateY(-6px); }
+  92% { transform: translateY(0); }
+}
+.animate-bubble-hop { animation: bubble-hop 2.5s ease-in-out infinite; }
